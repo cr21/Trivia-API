@@ -3,7 +3,7 @@ from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import random
-
+import sys
 from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
@@ -79,7 +79,7 @@ def create_app(test_config=None):
     else:
       return jsonify({
         'questions':all_questions,
-        'totalQuestions':len(selection),
+        'total_questions':len(selection),
         'categories': {category.id:category.type for category in all_categories},
         'currentCategory': None 
       })
@@ -91,6 +91,20 @@ def create_app(test_config=None):
   TEST: When you click the trash icon next to a question, the question will be removed.
   This removal will persist in the database and when you refresh the page. 
   '''
+  @app.route("/questions/<int:id>",methods=["DELETE"])
+  def delete_question(id):
+    # fetch question details from db 
+    question = Question.query.get(id)
+    # if question id is not present in db abort operation
+    # else return sucess True 
+    if question is None:
+      abort(422)
+    else:
+      question.delete()
+      return jsonify({
+        "status_code":200,
+        "success": True
+      })
 
   '''
   @TODO: 
@@ -102,7 +116,39 @@ def create_app(test_config=None):
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
-
+  @app.route("/questions",methods=["POST"])
+  def add_questions():
+    try:
+      data = request.get_json()
+      question = data.get("question")
+      answer = data.get("answer")
+      difficulty = data.get("difficulty")
+      category = data.get("category")
+      # get all categories to get category id
+      print("___________data______________",data)
+      categories = {\
+                      category.type : category.id 
+                      for category in Category.query.all()
+                    }
+      # this can be handled in frontend by providing options but I am explicitly 
+      # handling this , if user provided category not found in database raised error and 
+      # dont post the question 
+      if categories.get(category):
+        question_record = Question(question,answer,categories.get(category),difficulty)
+        question_record.insert()
+        selection = Question.query.order_by(Question.id).all()
+      
+        return jsonify({
+          "status_code":200,
+          "success":True,
+          "total_questions":len(selection)
+        })
+      else:
+        print("*********",categories.get(category))
+        abort(500)
+    except:
+      print(sys.exc_info())
+      abort(500)
   '''
   @TODO: 
   Create a POST endpoint to get questions based on a search term. 
@@ -148,6 +194,22 @@ def create_app(test_config=None):
       "error": 404,
       "message": "resource not found"
       }), 404
+
+  @app.errorhandler(422)
+  def Unprocessable(error):
+    return jsonify({
+      "success": False, 
+      "error": 422,
+      "message": "Unprocessable"
+      }), 422
+
+  @app.errorhandler(500)
+  def server_processing_error(error):
+    return jsonify({
+      "success":False,
+      "error":500,
+      "message":"Internal Server Error"
+    }),500
 
   return app
 

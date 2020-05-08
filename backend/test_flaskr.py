@@ -9,13 +9,18 @@ from models import setup_db, Question, Category
 
 class TriviaTestCase(unittest.TestCase):
     """This class represents the trivia test case"""
-
     def setUp(self):
         """Define test variables and initialize app."""
         self.app = create_app()
         self.client = self.app.test_client
         self.database_name = "trivia_test"
         self.database_path = "postgres://{}:{}@{}/{}".format('postgres', 'root','localhost:5432', self.database_name)
+        self.question = {
+                            "question":"Who is  your favorite sport player",
+                            "answer":"Leo Messi",
+                            "category":"Sports",
+                            "difficulty":1
+        }
         setup_db(self.app, self.database_path)
 
         # binds the app to the current context
@@ -60,7 +65,41 @@ class TriviaTestCase(unittest.TestCase):
         print(data)
         self.assertEqual(data['success'], True)
         self.assertTrue(data['categories'])
+    
+    # # delete success routine
+    # def test_delete_questions(self):
+    #     res = self.client().delete("/questions/2")
+    #     print(res)
+    #     question = Question.query.filter(Question.id == 2).one_or_none()
+    #     self.assertEqual(res.status_code, 200)
+    #     self.assertEqual(question, None)
+     
+    # delete Failure message 422 error
+    def test_422_if_question_does_not_exist(self):
+        res = self.client().delete('/questions/2000')
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'Unprocessable')
 
+    # successfully add new question
+    def test_create_new_question(self):
+        res = self.client().post('/questions', json=self.question)
+        data = json.loads(res.data)
+        # print("data",data)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['total_questions'])
+        
+    
+    def test_500_if_question_creation_fails(self):
+        self.question["category"]=20
+        res = self.client().post('/questions', json=self.question)
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 500)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'Internal Server Error')
+        
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()

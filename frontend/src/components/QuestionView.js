@@ -90,6 +90,7 @@ class QuestionView extends Component {
       },
       crossDomain: true,
       success: (result) => {
+        console.log("questions",result)
         this.setState({
           questions: result.questions,
           totalQuestions: result.total_questions,
@@ -111,6 +112,7 @@ class QuestionView extends Component {
           url: `/questions/${id}`, //TODO: update request URL
           type: "DELETE",
           success: (result) => {
+            console.log(result)
             this.getQuestions();
           },
           error: (error) => {
