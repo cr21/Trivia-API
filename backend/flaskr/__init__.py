@@ -124,28 +124,20 @@ def create_app(test_config=None):
       answer = data.get("answer")
       difficulty = data.get("difficulty")
       category = data.get("category")
-      # get all categories to get category id
-      print("___________data______________",data)
-      categories = {\
-                      category.type : category.id 
-                      for category in Category.query.all()
-                    }
-      # this can be handled in frontend by providing options but I am explicitly 
-      # handling this , if user provided category not found in database raised error and 
-      # dont post the question 
-      if categories.get(category):
-        question_record = Question(question,answer,categories.get(category),difficulty)
-        question_record.insert()
-        selection = Question.query.order_by(Question.id).all()
-      
-        return jsonify({
-          "status_code":200,
-          "success":True,
-          "total_questions":len(selection)
-        })
-      else:
-        print("*********",categories.get(category))
-        abort(500)
+      # categories = {\
+      #                 category.type : category.id 
+      #                 for category in Category.query.all()
+      #               }
+      # print(categories)
+      question_record = Question(question,answer,category,difficulty)
+      question_record.insert()
+      selection = Question.query.order_by(Question.id).all()
+    
+      return jsonify({
+        "status_code":200,
+        "success":True,
+        "total_questions":len(selection)
+      })
     except:
       print(sys.exc_info())
       abort(500)

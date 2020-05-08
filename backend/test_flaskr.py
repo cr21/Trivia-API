@@ -18,7 +18,7 @@ class TriviaTestCase(unittest.TestCase):
         self.question = {
                             "question":"Who is  your favorite sport player",
                             "answer":"Leo Messi",
-                            "category":"Sports",
+                            "category":"6",
                             "difficulty":1
         }
         setup_db(self.app, self.database_path)
