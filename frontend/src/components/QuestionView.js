@@ -26,6 +26,8 @@ class QuestionView extends Component {
       url: `/questions?page=${this.state.page}`, //TODO: update request URL
       type: "GET",
       success: (result) => {
+        console.log("result",result)
+
         this.setState({
           questions: result.questions,
           totalQuestions: result.total_questions,
@@ -91,7 +93,8 @@ class QuestionView extends Component {
         this.setState({
           questions: result.questions,
           totalQuestions: result.total_questions,
-          currentCategory: result.current_category })
+          currentCategory:
+           result.current_category })
         return;
       },
       error: (error) => {

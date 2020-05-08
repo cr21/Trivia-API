@@ -16,17 +16,33 @@ def create_app(test_config=None):
   '''
   @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
   '''
-
+  # CORS Header
+  # default CORS constructor
+  # CORS(app)
+  CORS(app, resources=r'/api/*')
   '''
   @TODO: Use the after_request decorator to set Access-Control-Allow
   '''
-
+  #CORS Headers
+  @app.after_request
+  def after_request(response):
+    response.headers.add("Access-Control-Allow-Headers","Content-Type,Authorization,True")
+    response.headers.add("Access-Control-Allow-Methods","GET,PUT,POST,PATCH,DELETE,OPTIONS")
+    return response
   '''
   @TODO: 
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
-
+  @app.route("/categories")
+  def get_All_Categories():
+    categories = Category.query.all()
+    categories = {category.id:category.type for category in categories}
+    print(categories)
+    return jsonify({
+      "success":True,
+      "categories":categories
+    })
 
   '''
   @TODO: 
@@ -40,8 +56,35 @@ def create_app(test_config=None):
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
   '''
+  
+  def get_paginated_questions(request,selection):
+    '''
+    Helper method for getting books for perticular page if page number is 
+    not passed then get first page result
+    '''
+    page = request.args.get('page',1,type=int)
+    start = (page-1)* QUESTIONS_PER_PAGE
+    end = start + QUESTIONS_PER_PAGE 
+    all_questions = selection[start:end]
+    all_questions=[question.format() for question in all_questions]
+    return all_questions
 
+  @app.route("/questions")
+  def get_all_questions():
+    selection = Question.query.order_by(Question.id).all()
+    all_questions = get_paginated_questions(request,selection)
+    all_categories = Category.query.all()
+    if len(all_questions) == 0:
+      abort(404)
+    else:
+      return jsonify({
+        'questions':all_questions,
+        'totalQuestions':len(selection),
+        'categories': {category.id:category.type for category in all_categories},
+        'currentCategory': None 
+      })
   '''
+
   @TODO: 
   Create an endpoint to DELETE question using a question ID. 
 
@@ -98,7 +141,14 @@ def create_app(test_config=None):
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
-  
+  @app.errorhandler(404)
+  def not_found(error):
+    return jsonify({
+      "success": False, 
+      "error": 404,
+      "message": "resource not found"
+      }), 404
+
   return app
 
     
