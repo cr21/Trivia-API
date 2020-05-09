@@ -67,12 +67,12 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['categories'])
     
      # # delete success routine
-    # def test_delete_questions(self):
-    #     res = self.client().delete("/questions/2")
-    #     print(res)
-    #     question = Question.query.filter(Question.id == 2).one_or_none()
-    #     self.assertEqual(res.status_code, 200)
-    #     self.assertEqual(question, None)
+    def test_delete_questions(self):
+        res = self.client().delete("/questions/31")
+        print(res)
+        question = Question.query.filter(Question.id == 31).one_or_none()
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(question, None)
      
     # delete Failure message 422 error
     def test_422_if_question_does_not_exist(self):
@@ -123,7 +123,42 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data["questions"])
         self.assertTrue(data['total_questions'])
         self.assertEqual(data['total_questions'],1)
-    
+
+    def test_quiz_All_category_no_previous_question(self):
+        res =self.client().post("quizzes",json={
+                                                "previous_questions": [],
+	                                            "quiz_category":  {"type": "click", "id": 0}
+                                                }
+                                )
+        data  = json.loads(res.data)
+        self.assertEqual(res.status,'200 OK')
+        self.assertEqual(res.status_code,200)
+        self.assertTrue(data["question"])
+
+    def test_quiz_by_category_no_previous_question(self):
+        res =self.client().post("quizzes",json={
+                                                "previous_questions": [],
+	                                            "quiz_category":  {"type": "click", "id": 6}
+                                                }
+                                )
+        data  = json.loads(res.data)
+        self.assertEqual(res.status,'200 OK')
+        self.assertEqual(res.status_code,200)
+        self.assertTrue(data["question"])
+
+    def test_quiz_by_category_previous_question(self):
+        res =self.client().post("quizzes",json={
+                                                "previous_questions": [14],
+	                                            "quiz_category":  {"type": "click", "id": 6}
+                                                }
+                                )
+        data  = json.loads(res.data)
+        self.assertEqual(res.status,'200 OK')
+        self.assertEqual(res.status_code,200)
+        self.assertTrue(data["question"])
+
+        
+        
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()
