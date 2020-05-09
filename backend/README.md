@@ -86,10 +86,13 @@ GET '/categories'
 '4' : "History",
 '5' : "Entertainment",
 '6' : "Sports"}
+
+
 GET ‘/questions’
 - Fetches a List of Questions Available
 - Request Arguments: page , for fetching the data for particular page
 - Returns: Returns Object with details about categories, current_category, questions list and total_no_of questions.
+
 Sample response format
  {
      "categories": {
@@ -119,12 +122,17 @@ Sample response format
      ],
      "total_questions": 26
  }
+
+
 GET ‘/categories/<int:id>/questions’
 - Fetches a List of Questions for particular category received from id parameter in request
 - Request Arguments: page (OPTIONAL) , for fetching the data for particular page
 - Returns: Returns Object with details about current_category, questions list and total_no_of questions, status_code,success
+
 -Sample Request Format:
+
  http://localhost:5000/categories/6/questions?page=1
+
 -Sample Responseformat:
  {
      "current_category": null,
@@ -147,12 +155,15 @@ GET ‘/categories/<int:id>/questions’
      "success": true,
      "total_questions": 10
  }
+
 DELETE ‘/questions/<int:id>’
 - Delete Question based on specific Question id
 - Request Arguments: id (Required) -Question Id
 - Returns: object with status_code and success
+
 Sample Request :
   http://localhost:5000/questions/11
+
 Sample Response :
   {
       "status_code": 200,
