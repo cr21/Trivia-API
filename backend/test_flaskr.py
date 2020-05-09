@@ -68,9 +68,9 @@ class TriviaTestCase(unittest.TestCase):
     
      # # delete success routine
     def test_delete_questions(self):
-        res = self.client().delete("/questions/31")
-        print(res)
-        question = Question.query.filter(Question.id == 31).one_or_none()
+        res = self.client().delete("/questions/9")
+        # print(res)
+        question = Question.query.filter(Question.id == 9).one_or_none()
         self.assertEqual(res.status_code, 200)
         self.assertEqual(question, None)
      
@@ -96,9 +96,9 @@ class TriviaTestCase(unittest.TestCase):
         self.question["category"]=20
         res = self.client().post('/questions', json=self.question)
         data = json.loads(res.data)
-        self.assertEqual(res.status_code, 500)
+        self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'Internal Server Error')
+        self.assertEqual(data['message'], 'resource not found')
 
     # get questions based on categories
     def test_get_question_by_categories(self):
