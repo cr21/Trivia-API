@@ -66,7 +66,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertTrue(data['categories'])
     
-    # # delete success routine
+     # # delete success routine
     # def test_delete_questions(self):
     #     res = self.client().delete("/questions/2")
     #     print(res)
@@ -99,7 +99,25 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 500)
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Internal Server Error')
+
+    # get questions based on categories
+    def test_get_question_by_categories(self):
+        res =self.client().get("/categories/6/questions")
+        data = json.loads(res.data)
+        self.assertTrue(data['questions'])
+        self.assertTrue(len(data['questions']))
+        self.assertEqual(data['status_code'], 200)
+        self.assertEqual(data['success'], True)
         
+    # error if any or accessing the page that dont have data
+    def test_404_get_question_by_category(self):
+        res=self.client().get("categories/100/questions")
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'resource not found')
+        
+               
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()
