@@ -96,6 +96,7 @@ def create_app(test_config=None):
   def delete_question(id):
     # fetch question details from db 
     question = Question.query.get(id)
+    print("questions",question)
     # if question id is not present in db abort operation
     # else return sucess True 
     if question is None:
@@ -152,16 +153,18 @@ def create_app(test_config=None):
         questions = get_paginated_questions(request,selection)
         if len(questions) == 0:
           print("DUDDDDDDDDDDDDD")
-          abort(404,"Question not found")
+          abort(404,description="resource not found")
         else:
+          print("___")
           return jsonify({
             'questions':questions,
             'total_questions':len(selection),
             'current_category':None
           })
     except:
-      print(sys.exc_info())
-      abort(500,"Something Wrong Went")
+      print("HI")
+      print("exception",sys.exc_info())
+      abort(404)
   '''
   @TODO: 
   Create a POST endpoint to get questions based on a search term. 
@@ -264,6 +267,7 @@ def create_app(test_config=None):
   '''
   @app.errorhandler(404)
   def not_found(error):
+    print("hey")
     return jsonify({
       "success": False, 
       "error": 404,
