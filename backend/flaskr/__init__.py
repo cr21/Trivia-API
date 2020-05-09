@@ -152,7 +152,7 @@ def create_app(test_config=None):
         questions = get_paginated_questions(request,selection)
         if len(questions) == 0:
           print("DUDDDDDDDDDDDDD")
-          abort(404)
+          abort(404,"Question not found")
         else:
           return jsonify({
             'questions':questions,
@@ -161,7 +161,7 @@ def create_app(test_config=None):
           })
     except:
       print(sys.exc_info())
-      abort(500)
+      abort(500,"Something Wrong Went")
   '''
   @TODO: 
   Create a POST endpoint to get questions based on a search term. 
@@ -210,6 +210,52 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
+  @app.route("/quizzes",methods=["POST"])
+  def get_quiz_questions():
+    try:
+      body = request.get_json()
+      previous_question = body.get('previous_questions')
+      quiz_category = int(body.get('quiz_category')['id'])
+      category = Category.query.get(quiz_category)
+      # if category is not None 
+      if not category == None:
+        # check if there are some previous questions so that we will not show those question
+        # again
+        if  "previous_questions"  in body and len(previous_question) > 0 :
+          # filtered out category and filterd out previous question
+          questions = Question.query.filter(Question.id.notin_(
+                        previous_question), Question.category == category.id).all()
+          # questions = Question.query.filter_by(Question.id.notin_(previous_question),
+          #             category = category.id).all()
+        # if there are no previous question then check for category and if category is all
+        # then show all question
+        else:
+          print("in first else",category)
+          questions = Question.query.filter_by(category = category.id).all()
+      else:
+        # if category is none then only check for previous question filter
+        if "previous_questions" in body and len(previous_question) > 0:
+          questions = Question.query.filter(Question.id.notin_(previous_question)).all()
+        # if previous question is None and category is also None then show all
+        else:
+          questions = Question.query.all()
+      max = len(questions) - 1
+      if max > 0:
+          questions = questions[random.randint(0, max)].format()
+
+      else:
+          questions = False
+      print(questions)
+      return jsonify({
+          'status': 200,
+          "success": True,
+          "question": questions
+      })          
+    except:
+      print(sys.exc_info())
+      abort(500)
+    
+
 
   '''
   @TODO: 
@@ -239,6 +285,15 @@ def create_app(test_config=None):
       "error":500,
       "message":"Internal Server Error"
     }),500
+
+  @app.errorhandler(400)
+  def client_processing_error(error):
+    return jsonify({
+      "success":False,
+      "error":400,
+      "message":"request format Error"
+    }),400
+
 
   return app
 
