@@ -108,7 +108,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(data['questions']))
         self.assertEqual(data['status_code'], 200)
         self.assertEqual(data['success'], True)
-        
+
     # error if any or accessing the page that dont have data
     def test_404_get_question_by_category(self):
         res=self.client().get("categories/100/questions")
@@ -117,7 +117,13 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'resource not found')
         
-               
+    def test_search_questions(self):
+        res=self.client().post("questions",json={'searchTerm': "Taj"})
+        data = json.loads(res.data)
+        self.assertTrue(data["questions"])
+        self.assertTrue(data['total_questions'])
+        self.assertEqual(data['total_questions'],1)
+
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()

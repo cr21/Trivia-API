@@ -119,6 +119,7 @@ def create_app(test_config=None):
   '''
   @app.route("/questions",methods=["POST"])
   def add_questions():
+    print("heu")
     try:
       data = request.get_json()
       question = data.get("question")
@@ -126,6 +127,7 @@ def create_app(test_config=None):
       difficulty = data.get("difficulty")
       category = data.get("category")
       search_term = data.get("searchTerm")
+      print("search_term",search_term)
       # if search is not present then Normal Create Question else search and return
       if search_term is None:
         print("INSERTING RECORD!!!!!!!!!!!!!!!!!!!!1")
@@ -146,8 +148,10 @@ def create_app(test_config=None):
       else:
         print("SEARCHING RECORD!!!!!!!!!!!!!!!!!!!!1")
         selection = Question.query.filter(Question.question.ilike('%'+search_term+'%')).all()
+        print(selection)
         questions = get_paginated_questions(request,selection)
         if len(questions) == 0:
+          print("DUDDDDDDDDDDDDD")
           abort(404)
         else:
           return jsonify({
