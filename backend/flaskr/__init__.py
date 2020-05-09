@@ -125,20 +125,36 @@ def create_app(test_config=None):
       answer = data.get("answer")
       difficulty = data.get("difficulty")
       category = data.get("category")
-      # categories = {\
-      #                 category.type : category.id 
-      #                 for category in Category.query.all()
-      #               }
-      # print(categories)
-      question_record = Question(question,answer,category,difficulty)
-      question_record.insert()
-      selection = Question.query.order_by(Question.id).all()
-    
-      return jsonify({
-        "status_code":200,
-        "success":True,
-        "total_questions":len(selection)
-      })
+      search_term = data.get("searchTerm")
+      # if search is not present then Normal Create Question else search and return
+      if search_term is None:
+        print("INSERTING RECORD!!!!!!!!!!!!!!!!!!!!1")
+        # categories = {\
+        #                 category.type : category.id 
+        #                 for category in Category.query.all()
+        #               }
+        # print(categories)
+        question_record = Question(question,answer,category,difficulty)
+        question_record.insert()
+        selection = Question.query.order_by(Question.id).all()
+      
+        return jsonify({
+          "status_code":200,
+          "success":True,
+          "total_questions":len(selection)
+        })
+      else:
+        print("SEARCHING RECORD!!!!!!!!!!!!!!!!!!!!1")
+        selection = Question.query.filter(Question.question.ilike('%'+search_term+'%')).all()
+        questions = get_paginated_questions(request,selection)
+        if len(questions) == 0:
+          abort(404)
+        else:
+          return jsonify({
+            'questions':questions,
+            'total_questions':len(selection),
+            'current_category':None
+          })
     except:
       print(sys.exc_info())
       abort(500)
@@ -152,6 +168,8 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
+  # @app.route("/questions",methods=["POST"])
+  # def 
 
   '''
   @TODO: 
